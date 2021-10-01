@@ -61,5 +61,43 @@ def JobList(message):
     bot.edit_message_text(text=str(var),chat_id=cid,message_id=mid,disable_web_page_preview=True)
     # bot.reply_to(message,str(var),disable_web_page_preview=True)
 
+@bot.message_handler(commands=['joblist2'])
+def JobList(message):
+    os.system("cls||clear")
+    msg=bot.send_message(message.chat.id, "Working on List")
+    cid=msg.chat.id
+    mid=msg.message_id
+    print("Working on studentcircle List \n")
+    pagelinks=[]
+    ulink='https://www.studentscircles.com/category/it-jobs/' #Pleae take persmisson from site
+    tag='div'
+    classname='td-pb-span8 td-main-content'
+    pagelinks=pagelinksgen(ulink,tag,classname)
+    var=''
+    index=0
+    count=1
+    while index!=10:
+        page2links=[]
+        Joblinks=[]
+        soup=soup_creator(pagelinks[index])
+        job_title = soup.select('h1.entry-title')[0].text.strip()
+        SplitString=job_title.split(" | ")
+        var=var+newline+SplitString[0]+newline+"Role : "+SplitString[1]
+        for page2 in soup.find_all('div', {'class':'td-post-content tagdiv-type'}):
+            for link in page2.find_all("a"):
+                page2links.append(link.get("href"))
+        soup=soup_creator(page2links[-2])
+        for div in soup.find_all('div', {'class':'form_container form_apply_job'}):
+            for link in div.find_all("a"):
+                Joblinks.append(link.get("href"))
+            var=var+newline+Joblinks[1]+newline
+            scount="Prepared "+str(count)
+            bot.edit_message_text(text=scount,chat_id=cid,message_id=mid)
+        count=count+1
+        index=index+1
+    bot.edit_message_text(text=str(var),chat_id=cid,message_id=mid,disable_web_page_preview=True)
+    # bot.reply_to(message,str(var),disable_web_page_preview=True)
+    print("List Done")
+
 bot.polling()
 #tb.polling(none_stop=False, interval=0, timeout=20)
