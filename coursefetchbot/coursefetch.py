@@ -16,6 +16,14 @@ bot = telebot.TeleBot(TOKEN)
 def send_welcome(message):
 	bot.reply_to(message, "Howdy, how are you doing?")
 
+# @bot.message_handler(func=lambda m: True)
+# def echo_all(message):
+# 	bot.reply_to(message, message.text)
+
+
+
+
+# _UserAgent='Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:75.0) Gecko/20100101 Firefox/75.0'
 newline='\n'
 
 def soup_creator(link):
@@ -78,6 +86,52 @@ def JobList(message):
     #print(var)
     bot.edit_message_text(text=str(var),chat_id=cid,message_id=mid,disable_web_page_preview=True)
     # bot.reply_to(message,str(var),disable_web_page_preview=True)
+
+
+
+@bot.message_handler(commands=['couponlist2'])
+def JobList(message):
+    os.system("cls||clear")
+    msg=bot.send_message(message.chat.id, "Working on List")
+    var=''
+    cid=msg.chat.id
+    mid=msg.message_id
+    pagelinks=[] #all page links of all the coupon in www.tutorialbar.com/
+    print("Working on List \n")
+    url= requests.get("https://www.coursevania.com")
+    soup= BeautifulSoup(url.text, "html.parser")
+
+    for div_a in soup.find_all('div',{'class':'stm_lms_recent_courses'}):
+        for div_b in div_a.find_all('div', {'class':'stm_lms_courses__single stm_lms_courses__single_animation no-sale style_1'}):
+            for div_c in div_b.find_all('div',{'class':'stm_lms_courses__single--image'}):
+                for link in div_c.find_all("a"):
+                    pagelinks.append(link.get("href"))
+                    # print(link.get("href"))
+    index=0
+    count=1
+    while index<10:
+        soup=soup_creator(pagelinks[index])
+        coupon_title=''
+        couponlink=''
+        for coupon in soup.find_all('div',{'class':'stm-lms-buy-buttons'}):
+            for link in coupon.find_all("a"):
+                couponlink=link.get("href")
+                #print(couponlink)
+        soup=soup_creator(couponlink)
+        coupon_title = soup.select('h1.clp-lead__title')[0].text.strip()
+        var=var+coupon_title+newline+couponlink+newline+newline
+        scount="Prepared "+str(count)
+        bot.edit_message_text(text=scount,chat_id=cid,message_id=mid)
+        # print(coupon_title)
+        # print(couponlink)
+        # print('')
+        index+=1
+        count+=1
+    print("DONE")
+    bot.edit_message_text(text=str(var),chat_id=cid,message_id=mid,disable_web_page_preview=True)
+    # bot.reply_to(message,str(var),disable_web_page_preview=True)
+
+
 
 bot.polling()
 #tb.polling(none_stop=False, interval=0, timeout=20)
