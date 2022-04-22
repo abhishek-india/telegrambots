@@ -9,7 +9,7 @@ import codecs
 import os
 import random
 
-TOKEN = ""
+TOKEN = " "
 bot = telebot.TeleBot(TOKEN)
 
 user_agent=[
@@ -166,7 +166,7 @@ def discudemy(message):
     os.system("cls||clear")
     print("Working on List \n")
 
-    url= requests.get("https://www.discudemy.com/language/english/")
+    url= requests.get("https://www.discudemy.com/language/english/",headers=HEADERS)
     soup= BeautifulSoup(url.text, "html.parser")
     for div_b in soup.find_all('article', {'class':'ui four stackable cards m15'}):
         for link in div_b.find_all("a"):
@@ -205,6 +205,38 @@ def discudemy(message):
         index=index+1
     bot.edit_message_text(text=str(var),chat_id=cid,message_id=mid,disable_web_page_preview=True)
 
+
+@bot.message_handler(commands=['coursefolder'])
+def coursefolder(message):
+    os.system("cls||clear")
+    msg=bot.send_message(message.chat.id, "Working on coursefolder")
+    var=''
+    cid=msg.chat.id
+    mid=msg.message_id
+    pagelinks=[] #all page links of all the coupon in www.tutorialbar.com/
+    print("Working on List \n")
+    url= requests.get("https://coursefolder.net/free-udemy-coupon.php",headers=HEADERS)
+    soup= BeautifulSoup(url.text, "html.parser")
+
+    for link in soup.find_all('a',{'class':'font-title--card'}):
+        pagelinks.append(link.get("href"))
+    
+    index=0
+    while index!=25:
+        soup=soup_creator(pagelinks[index])
+        ctitle=soup.find("h3",{"class":"font-title--sm"}).get_text().strip()
+        # print(ctitle)
+        couponlink = str(soup.find('button', {'class':'button button-lg button--primary w-100'}))
+        findex=77
+        lindex=couponlink.find("','")
+        couponlink=couponlink[findex:lindex]
+        # print(couponlink)
+        var=var+newline+ctitle+newline+couponlink+newline
+        index=index+1
+        scount="Prepared "+str(index+1)
+        bot.edit_message_text(text=scount,chat_id=cid,message_id=mid)
+    bot.edit_message_text(text=str(var),chat_id=cid,message_id=mid,disable_web_page_preview=True)
+    # bot.reply_to(message,str(var),disable_web_page_preview=True)
 
 
 #bot.polling()
